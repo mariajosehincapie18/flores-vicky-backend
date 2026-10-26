@@ -5,3 +5,39 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Role {
+  admin
+  user
+}
+
+model User {
+  id            Int           @id @default(autoincrement())
+  nombre        String
+  email         String        @unique
+  password      String
+  role          Role          @default(user)
+
+  interacciones Interaccion[]
+}
+
+model Producto {
+  id              Int           @id @default(autoincrement())
+  nombre          String
+  categoria       String
+  imagen          String
+  descripcion     String
+  caracteristicas String
+
+  interacciones   Interaccion[]
+}
+
+model Interaccion {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  productoId Int
+  mensaje    String
+
+  user       User     @relation(fields: [userId], references: [id])
+  producto   Producto @relation(fields: [productoId], references: [id])
+}
