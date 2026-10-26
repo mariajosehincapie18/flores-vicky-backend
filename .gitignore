@@ -3,3 +3,8 @@ dist/
 .env
 .env.*
 !.env.example
+# Prisma AI skills
+.agents/
+.claude/
+.cursor/
+.devin/
