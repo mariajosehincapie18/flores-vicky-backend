@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
- "scripts": {
-  "dev": "tsx src/interface/server.ts",
-  "build": "tsc",
-  "start": "node dist/interface/server.js"
-},
+  "scripts": {
+    "dev": "tsx src/interface/server.ts",
+    "build": "tsc",
+    "start": "node dist/interface/server.js",
+    "postinstall": "prisma skills sync || exit 0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mariajosehincapie18/flores-vicky-backend.git"
@@ -21,7 +22,9 @@
   },
   "homepage": "https://github.com/mariajosehincapie18/flores-vicky-backend#readme",
   "dependencies": {
-    "express": "^5.3.0"
+    "@prisma/client": "^7.10.1",
+    "express": "^5.3.0",
+    "prisma": "^7.10.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
