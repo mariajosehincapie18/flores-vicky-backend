@@ -23,6 +23,7 @@
   "homepage": "https://github.com/mariajosehincapie18/flores-vicky-backend#readme",
   "dependencies": {
     "@prisma/client": "^7.10.1",
+    "dotenv": "^18.0.9",
     "express": "^5.3.0",
     "prisma": "^7.10.1"
   },
