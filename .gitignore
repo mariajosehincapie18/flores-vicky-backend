@@ -10,3 +10,6 @@ dist/
 .devin/
 # Prisma generated client
 prisma/generated/
+# Prisma generated client
+prisma/generated/
+src/infrastructure/database/generated/
