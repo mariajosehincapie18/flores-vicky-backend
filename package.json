@@ -7,7 +7,8 @@
     "dev": "tsx src/interface/server.ts",
     "build": "tsc",
     "start": "node dist/interface/server.js",
-    "postinstall": "prisma skills sync || exit 0"
+    "postinstall": "prisma skills sync || exit 0",
+    "seed": "tsx prisma/seed.ts"
   },
   "repository": {
     "type": "git",
@@ -22,9 +23,11 @@
   },
   "homepage": "https://github.com/mariajosehincapie18/flores-vicky-backend#readme",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
+    "pg": "^8.23.1",
     "prisma": "^7.10.1"
   },
   "devDependencies": {

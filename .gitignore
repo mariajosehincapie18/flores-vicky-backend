@@ -8,3 +8,5 @@ dist/
 .claude/
 .cursor/
 .devin/
+# Prisma generated client
+prisma/generated/
