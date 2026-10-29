@@ -9,13 +9,25 @@ import { actualizarProducto } from "../application/ActualizarProducto";
 import { eliminarProducto } from "../application/EliminarProducto";
 import { autenticarToken, soloAdmin } from "./middlewares/autenticacion";
 import { Prisma } from "../infrastructure/database/generated/prisma/client";
-
+import cors from "cors";
 
 
 
 const app = express();
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      ...(process.env.FRONTEND_URL
+        ? [process.env.FRONTEND_URL]
+        : []),
+    ],
+  })
+);
 
 app.use(express.json());
 
@@ -320,6 +332,6 @@ app.post("/api/auth/login", async (req, res) => {
 
 
 
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
