@@ -2,6 +2,9 @@ import express from "express";
 import { prisma } from "../infrastructure/database/prisma";
 import { obtenerProductos } from "../application/ObtenerProductos";
 import { obtenerProductoPorId } from "../application/ObtenerProductoPorId";
+import { registrarUsuario } from "../application/RegistrarUsuario";
+import { iniciarSesion } from "../application/IniciarSesion";
+
 
 const app = express();
 
@@ -84,6 +87,92 @@ app.get("/api/productos/:id", async (req, res) => {
     });
   }
 });
+
+
+app.post("/api/auth/registro", async (req, res) => {
+  try {
+    const { nombre, email, password } = req.body;
+
+    if (
+      typeof nombre !== "string" ||
+      typeof email !== "string" ||
+      typeof password !== "string"
+    ) {
+      res.status(400).json({
+        mensaje: "Nombre, correo y contraseña son obligatorios",
+      });
+      return;
+    }
+
+    const usuario = await registrarUsuario({
+      nombre,
+      email,
+      password,
+    });
+
+    res.status(201).json({
+      mensaje: "Usuario registrado correctamente",
+      usuario,
+    });
+  } catch (error) {
+    const mensaje =
+      error instanceof Error ? error.message : "Error al registrar usuario";
+
+    if (
+      mensaje === "Todos los campos son obligatorios" ||
+      mensaje === "La contraseña debe tener al menos 8 caracteres"
+    ) {
+      res.status(400).json({ mensaje });
+      return;
+    }
+
+    if (mensaje === "El correo electrónico ya está registrado") {
+      res.status(409).json({ mensaje });
+      return;
+    }
+
+    console.error(error);
+    res.status(500).json({ mensaje: "No se pudo registrar el usuario" });
+  }
+});
+
+
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (typeof email !== "string" || typeof password !== "string") {
+      res.status(400).json({
+        mensaje: "El correo y la contraseña son obligatorios",
+      });
+      return;
+    }
+
+    const resultado = await iniciarSesion({ email, password });
+
+    res.json(resultado);
+  } catch (error) {
+    const mensaje =
+      error instanceof Error ? error.message : "Error al iniciar sesión";
+
+    if (
+      mensaje === "El correo y la contraseña son obligatorios" ||
+      mensaje === "La configuración de autenticación no está completa"
+    ) {
+      res.status(400).json({ mensaje });
+      return;
+    }
+
+    if (mensaje === "Credenciales incorrectas") {
+      res.status(401).json({ mensaje });
+      return;
+    }
+
+    console.error(error);
+    res.status(500).json({ mensaje: "No se pudo iniciar sesión" });
+  }
+});
+
 
 
 
