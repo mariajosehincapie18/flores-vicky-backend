@@ -4,6 +4,13 @@ import { obtenerProductos } from "../application/ObtenerProductos";
 import { obtenerProductoPorId } from "../application/ObtenerProductoPorId";
 import { registrarUsuario } from "../application/RegistrarUsuario";
 import { iniciarSesion } from "../application/IniciarSesion";
+import { crearProducto } from "../application/CrearProducto";
+import { actualizarProducto } from "../application/ActualizarProducto";
+import { eliminarProducto } from "../application/EliminarProducto";
+import { autenticarToken, soloAdmin } from "./middlewares/autenticacion";
+import { Prisma } from "../infrastructure/database/generated/prisma/client";
+
+
 
 
 const app = express();
@@ -87,6 +94,142 @@ app.get("/api/productos/:id", async (req, res) => {
     });
   }
 });
+app.post("/api/productos", autenticarToken, soloAdmin, async (req, res) => {
+  try {
+    const { nombre, categoria, imagen, descripcion, caracteristicas } = req.body;
+
+    if (
+      typeof nombre !== "string" ||
+      typeof categoria !== "string" ||
+      typeof imagen !== "string" ||
+      typeof descripcion !== "string" ||
+      typeof caracteristicas !== "string" ||
+      !nombre.trim() ||
+      !categoria.trim()
+    ) {
+      res.status(400).json({
+        mensaje: "Todos los campos del producto son obligatorios",
+      });
+      return;
+    }
+
+    const producto = await crearProducto({
+      nombre: nombre.trim(),
+      categoria: categoria.trim(),
+      imagen: imagen.trim(),
+      descripcion: descripcion.trim(),
+      caracteristicas: caracteristicas.trim(),
+    });
+
+    res.status(201).json({
+      mensaje: "Producto creado correctamente",
+      producto,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      mensaje: "No se pudo crear el producto",
+    });
+  }
+});
+
+app.put("/api/productos/:id", autenticarToken, soloAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({
+      mensaje: "El ID debe ser un número entero positivo",
+    });
+    return;
+  }
+
+  try {
+    const { nombre, categoria, imagen, descripcion, caracteristicas } = req.body;
+
+    if (
+      typeof nombre !== "string" ||
+      typeof categoria !== "string" ||
+      typeof imagen !== "string" ||
+      typeof descripcion !== "string" ||
+      typeof caracteristicas !== "string" ||
+      !nombre.trim() ||
+      !categoria.trim()
+    ) {
+      res.status(400).json({
+        mensaje: "Todos los campos del producto son obligatorios",
+      });
+      return;
+    }
+
+    const producto = await actualizarProducto(id, {
+      nombre: nombre.trim(),
+      categoria: categoria.trim(),
+      imagen: imagen.trim(),
+      descripcion: descripcion.trim(),
+      caracteristicas: caracteristicas.trim(),
+    });
+
+    res.json({
+      mensaje: "Producto actualizado correctamente",
+      producto,
+    });
+  } catch (error) {
+    console.error(error);
+
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      res.status(404).json({
+        mensaje: "Producto no encontrado",
+      });
+      return;
+    }
+
+    res.status(500).json({
+      mensaje: "No se pudo actualizar el producto",
+    });
+  }
+});
+
+
+app.delete("/api/productos/:id", autenticarToken, soloAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({
+      mensaje: "El ID debe ser un número entero positivo",
+    });
+    return;
+  }
+
+  try {
+    await eliminarProducto(id);
+
+    res.json({
+      mensaje: "Producto eliminado correctamente",
+    });
+  } catch (error) {
+    console.error(error);
+
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      res.status(404).json({
+        mensaje: "Producto no encontrado",
+      });
+      return;
+    }
+
+    res.status(500).json({
+      mensaje: "No se pudo eliminar el producto",
+    });
+  }
+});
+
+
 
 
 app.post("/api/auth/registro", async (req, res) => {
