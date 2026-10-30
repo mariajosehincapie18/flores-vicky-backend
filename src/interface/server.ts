@@ -375,6 +375,47 @@ const usuarioId = Number(req.usuario.id);
   }
 });
 
+// Crear consulta general
+app.post("/api/consultas", autenticarToken, async (req, res) => {
+  try {
+    const { mensaje } = req.body;
+
+    if (typeof mensaje !== "string" || !mensaje.trim()) {
+      res.status(400).json({
+        mensaje: "El mensaje es obligatorio",
+      });
+      return;
+    }
+
+    if (!req.usuario) {
+      res.status(401).json({
+        mensaje: "Debes iniciar sesión para enviar una consulta",
+      });
+      return;
+    }
+
+    const usuarioId = Number(req.usuario.id);
+
+    const consulta = await prisma.consulta.create({
+      data: {
+        userId: usuarioId,
+        mensaje: mensaje.trim(),
+      },
+    });
+
+    res.status(201).json({
+      mensaje: "Tu consulta fue enviada con éxito",
+      consulta,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      mensaje: "No se pudo enviar la consulta",
+    });
+  }
+});
+
 // Consultar solicitudes del usuario autenticado
 app.get("/api/interacciones/mis-interacciones", autenticarToken, async (req, res) => {
   try {

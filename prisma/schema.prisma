@@ -20,6 +20,7 @@ model User {
   role          Role          @default(user)
 
   interacciones Interaccion[]
+  consultas     Consulta[]
 }
 
 model Producto {
@@ -41,4 +42,12 @@ model Interaccion {
 
   user       User     @relation(fields: [userId], references: [id])
   producto   Producto @relation(fields: [productoId], references: [id])
+}
+
+model Consulta {
+  id      Int    @id @default(autoincrement())
+  userId  Int
+  mensaje String
+
+  user    User   @relation(fields: [userId], references: [id])
 }
