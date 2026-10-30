@@ -23,8 +23,9 @@ app.use(
       "http://localhost:3000",
       "http://localhost:5173",
       ...(process.env.FRONTEND_URL
-        ? [process.env.FRONTEND_URL]
-        : []),
+    ? [process.env.FRONTEND_URL]
+    : []),
+      "https://flores-vicky-frontend.vercel.app",
     ],
   })
 );
