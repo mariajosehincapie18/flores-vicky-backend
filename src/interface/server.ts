@@ -328,6 +328,87 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+// Crear solicitud de encargo
+app.post("/api/interacciones", autenticarToken, async (req, res) => {
+  try {
+    const { productoId, mensaje } = req.body;
+
+    if (
+      !Number.isInteger(productoId) ||
+      productoId <= 0 ||
+      typeof mensaje !== "string" ||
+      !mensaje.trim()
+    ) {
+      res.status(400).json({
+        mensaje: "El producto y el mensaje son obligatorios",
+      });
+      return;
+    }
+
+    if (!req.usuario) {
+  res.status(401).json({
+    mensaje: "Debes iniciar sesión para enviar una solicitud",
+  });
+  return;
+}
+
+const usuarioId = Number(req.usuario.id);
+
+    const interaccion = await prisma.interaccion.create({
+      data: {
+        userId: usuarioId,
+        productoId,
+        mensaje: mensaje.trim(),
+      },
+    });
+
+    res.status(201).json({
+      mensaje: "Solicitud enviada correctamente",
+      interaccion,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      mensaje: "No se pudo enviar la solicitud",
+    });
+  }
+});
+
+// Consultar solicitudes del usuario autenticado
+app.get("/api/interacciones/mis-interacciones", autenticarToken, async (req, res) => {
+  try {
+    if (!req.usuario) {
+      res.status(401).json({
+        mensaje: "Debes iniciar sesión",
+      });
+      return;
+    }
+
+    const usuarioId = Number(req.usuario.id);
+
+    const interacciones = await prisma.interaccion.findMany({
+      where: {
+        userId: usuarioId,
+      },
+      include: {
+        producto: true,
+      },
+      orderBy: {
+        id: "desc",
+      },
+    });
+
+    res.json(interacciones);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      mensaje: "No se pudieron consultar tus solicitudes",
+    });
+  }
+});
+
 
 
 
